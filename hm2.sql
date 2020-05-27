@@ -89,7 +89,35 @@ limit 1;
 -- Name the output column name.
 -- [Output relation cardinality: 12 rows]
 
-select distinct C.name 
-from CARRIERS C, FLIGHTS F
-where count(fid)>1000 
-group by C.name,
+
+
+select distinct C.name
+from FLIGHTS F, CARRIERS C 
+where C.cid=F.carrier_id
+group by F.carrier_id, F.month_id, F.day_of_month
+having count(F.fid) > 1000 ;
+
+-- problem 5
+-- Find all airlines that had more than 0.5 percent of their flights out of Seattle be canceled.
+-- Return the name of the airline and the percentage of canceled flight out of Seattle.
+-- Order the results by the percentage of canceled flights in ascending order.
+-- Name the output columns name and percent, in that order.
+-- [Output relation cardinality: 6 rows]
+
+select C.name, sum(F.canceled)/(1.0*count(*)) as percent 
+from FLIGHTS F, CARRIERS C 
+where C.cid=F.carrier_id and F.origin_city = 'Seattle WA'
+group by F.carrier_id
+having percent>0.005
+order by percent;
+
+-- problem 6
+-- Find the maximum price of tickets between Seattle and New York, NY (i.e. Seattle to NY or NY to Seattle).
+-- Show the maximum price for each airline separately.
+-- Name the output columns carrier and max_price, in that order.
+-- [Output relation cardinality: 3 rows]
+
+select C.name, max(F.price) 
+from FLIGHTS F, CARRIERS C 
+where C.cid=F.carrier_id and (F.origin_city = 'Seattle WA' or F.origin_city = 'New York NY') and (F.dest_city = 'New York NY' or F.dest_city = 'Seattle WA') 
+group by F.carrier_id;
