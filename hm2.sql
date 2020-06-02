@@ -121,3 +121,23 @@ select C.name, max(F.price)
 from FLIGHTS F, CARRIERS C 
 where C.cid=F.carrier_id and (F.origin_city = 'Seattle WA' or F.origin_city = 'New York NY') and (F.dest_city = 'New York NY' or F.dest_city = 'Seattle WA') 
 group by F.carrier_id;
+
+-- problem 7
+-- Find the total capacity of all direct flights that fly between Seattle and San Francisco, CA on July 10th (i.e. Seattle to SF or SF to Seattle).
+-- Name the output column capacity.
+-- [Output relation cardinality: 1 row]
+
+select sum(F.capacity) 
+from FLIGHTS F ,MONTHS M
+where M.mid = F.month_id and (F.origin_city = 'Seattle WA' or F.origin_city = 'San Francisco CA') and (F.dest_city = 'San Francisco CA' or F.dest_city = 'Seattle WA') and M.month = 'July' and F.day_of_month ='10';
+
+-- problem 8
+-- Compute the total departure delay of each airline
+-- across all flights. Some departure delays may be negative (indicating an early departure); they should reduce the total, so you don't need to handle them specially.
+-- Name the output columns name and delay, in that order.
+-- [Output relation cardinality: 22 rows]
+
+select C.name, sum(F.departure_delay) as delay
+from FLIGHTS F, CARRIERS C 
+where C.cid=F.carrier_id 
+group by F.carrier_id;
