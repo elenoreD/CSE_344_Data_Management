@@ -34,29 +34,39 @@ create table mrFrumbleData (name varchar(7),
 -- 3. Decompose the table into Boyce-Codd Normal Form (BCNF), and create SQL tables for the decomposed schema. Create keys and foreign keys where appropriate.
 -- For this question turn in the SQL commands for creating the tables.
 
-create table FRUMBLE (fid int PRIMARY KEY, 
+create table FRUMBLE (fid INTEGER PRIMARY KEY, 
                     name varchar(7),
-                    FOREIGN KEY (discount) REFERENCES DISCOUNT(did) ON DELETE CASCADE),
-                    FOREIGN KEY (month) REFERENCES MONTH(mid) ON DELETE CASCADE),
-                    FOREIGN KEY (price) REFERENCES PRICE(pid) ON DELETE CASCADE));
+                    discount_id int,
+                    month_id int,
+                    price_id int,
+                    FOREIGN KEY (discount_id) REFERENCES DISCOUNT (did) ON DELETE CASCADE,
+                    FOREIGN KEY (month_id) REFERENCES MONTH(mid) ON DELETE CASCADE,
+                    FOREIGN KEY (price_id) REFERENCES PRICE(pid) ON DELETE CASCADE);
 
 create table NAME (nid INTEGER PRIMARY KEY, 
                     name varchar(7));
 
-create table DISCOUNT (did int NOT NULL AUTO_INCREMENT,
-                    discount int,
-                    PRIMARY KEY (did));
+create table DISCOUNT (did INTEGER PRIMARY KEY,
+                    discount int);
 
-create table MONTH (mid int NOT NULL AUTO_INCREMENT, 
-                    month varchar(3),
-                    PRIMARY KEY (mid));
+create table MONTH (mid INTEGER PRIMARY KEY, 
+                    month varchar(3));
 
-create table PRICE (pid int NOT NULL AUTO_INCREMENT, 
-                    price int,
-                    PRIMARY KEY (pid));
+create table PRICE (pid INTEGER PRIMARY KEY, 
+                    price int);
 
 -- 4. Populate your BCNF tables from Mr. Frumble's data.
 -- For this you need to write SQL queries that load the tables you created in question 3 from the table you created in question 1.
 -- Here, turn in the SQL queries that load the tables, and count the size of the tables after loading them (obtained by running SELECT COUNT(*) FROM Table).
 
+-- pupulate data to NAME table
 insert into NAME(name) select distinct name from mrFrumbleData;
+-- pupulate data to DISCOUNT table
+insert into DISCOUNT(discount) select distinct discount from mrFrumbleData;
+-- pupulate data to MONTH table
+insert into MONTH(month) select distinct month from mrFrumbleData;\-- pupulate data to PRICE table
+insert into PRICE(price) select distinct price from mrFrumbleData;
+-- pupulate data to FRUMBLE table
+insert into FRUMBLE (name, discount_id, month_id,price_id) select N.nid, D.did, M.mid, P.pid from mrFrumbleData A join NAME N on N.name= A.name join DISCOUNT D on A.discount = D.discount join MONTH M on M.month = A.month join PRICE P on P.price = A.price;
+
+
