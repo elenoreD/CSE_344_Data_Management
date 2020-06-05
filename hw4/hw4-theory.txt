@@ -1,0 +1,14 @@
+Part 3: Functional Dependency Theory (15 points)
+A set of attributes X is called closed (with respect to a given set of functional dependencies) if X⁺ = X.
+Consider a relation with schema R(A,B,C,D) and an unknown set of functional dependencies.
+For each closed attribute set below, give a set of functional dependencies that is consistent with it.
+
+a.  none
+b.  a-->b,c,d
+    b-->a,c,d
+    c-->a,b,d
+    d-->a,b,c
+c.  a-->b,c,d
+    b-->c
+    c-->b
+    d-->a,b,c
