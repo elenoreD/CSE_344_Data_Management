@@ -30,6 +30,18 @@ create table mrFrumbleData (name varchar(7),
 -- Please also include a SQL query for at least one functional dependency that does not exist in the dataset along with a comment mentioning that the functional dependency does not exist.
 -- Remember, short queries are preferred.
 
+-- name-> price
+select max(cnt) from (select count(distinct M.price) as cnt from mrFrumbleData M
+group by M.name);
+
+-- name, month-> discount
+select max(cnt) from (select count(distinct M.discount) as cnt from mrFrumbleData M
+group by M.name, M.month);
+
+-- name,discount !-> month (functional dependency that does not exist in the dataset)
+select max(cnt) from (select count(distinct M.month) as cnt from mrFrumbleData M
+group by M.name, M.discount);
+
 
 -- 3. Decompose the table into Boyce-Codd Normal Form (BCNF), and create SQL tables for the decomposed schema. Create keys and foreign keys where appropriate.
 -- For this question turn in the SQL commands for creating the tables.
