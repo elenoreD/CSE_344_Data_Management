@@ -184,15 +184,18 @@ public class Query {
           throw new IllegalStateException();
         }
 
-        String insertUser = "INSERT INTO EXTERNAL TABLE USERS VALUES (\'" + username + "\' ," + password + "," + salt + "," + initAmount + ")";
-        Statement insertUserStatement = conn.createStatement();
-        ResultSet checkInsertUser = insertUserStatement.executeQuery(insertUser);
-
-        checkInsertUser.close();
-
-      } catch (SQLException e) {
+        try {
+          String insertSQL = "INSERT INTO USERS (username, password, salt, balance) "
+              + "VALUES (\'" + username + "\', ? , ? , " + initAmount + ")" ;
+          System.out.println(insertSQL);
+          PreparedStatement insertStatement = conn.prepareStatement(insertSQL);
+          insertStatement.setBytes(1, hash);
+          insertStatement.setBytes(2, salt);
+          insertStatement.executeUpdate();
+          return "User successfully created!";
+        } catch (SQLException e) {
         e.printStackTrace();
-      }
+        }
 
       return "Failed to create user\n";
     } finally {
