@@ -1,5 +1,6 @@
 create EXTERNAL table USERS (username varchar(20),
                     password varbinary(20),
+                    salt varbinary(20),
                     balance int) WITH (DATA_SOURCE = CSE344_EXTERNAL);
 
 create EXTERNAL table RESERVATIONS (reservation_id int not null,
