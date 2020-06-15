@@ -14,6 +14,8 @@ import javax.crypto.spec.*;
 public class Query {
   // DB Connection
   private Connection conn;
+  private boolean isLogin;
+  private String currentUser;
 
   // Password hashing parameter constants
   private static final int HASH_STRENGTH = 65536;
@@ -23,14 +25,26 @@ public class Query {
   private static final String CHECK_FLIGHT_CAPACITY = "SELECT capacity FROM Flights WHERE fid = ?";
   private PreparedStatement checkFlightCapacityStatement;
 
+  // For clear table
+  private static final String CLEARTABLE_USERS_SQL = "delete from USERS";
+  private static final String CLEARTABLE_RESERVATIONS_SQL = "delete from RESERVATIONS";
+  private PreparedStatement clearUSERStatement;
+  private PreparedStatement clearRESERVATIONstatement;
+
   // For check dangling
   private static final String TRANCOUNT_SQL = "SELECT @@TRANCOUNT AS tran_count";
   private PreparedStatement tranCountStatement;
+
+  // For check user exist for login
+  private static final String locateUser_SQL = "SELECT password, salt FROM USERS U WHERE U.username = ?";
+  private PreparedStatement locateUserStatement;
 
   // TODO: YOUR CODE HERE
 
   public Query() throws SQLException, IOException {
     this(null, null, null, null);
+    isLogin = false;
+    currentUser = null;
   }
 
   protected Query(String serverURL, String dbName, String adminName, String password) throws SQLException, IOException {
@@ -103,7 +117,8 @@ public class Query {
    */
   public void clearTables() {
     try {
-      // TODO: YOUR CODE HERE
+      clearUSERStatement.executeUpdate();
+      clearRESERVATIONstatement.executeUpdate();
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -115,6 +130,10 @@ public class Query {
   private void prepareStatements() throws SQLException {
     checkFlightCapacityStatement = conn.prepareStatement(CHECK_FLIGHT_CAPACITY);
     tranCountStatement = conn.prepareStatement(TRANCOUNT_SQL);
+    clearUSERStatement = conn.prepareStatement(CLEARTABLE_USERS_SQL);
+    clearRESERVATIONstatement = conn.prepareStatement(CLEARTABLE_RESERVATIONS_SQL);
+    locateUserStatement = conn.prepareStatement(locateUser_SQL);
+
     // TODO: YOUR CODE HERE
   }
 
@@ -130,7 +149,45 @@ public class Query {
    */
   public String transaction_login(String username, String password) {
     try {
-      // TODO: YOUR CODE HERE
+      if (isLogin) {
+        return "User already logged in\n";
+      }
+      try {
+        locateUserStatement.setString(1, username);
+        ResultSet locate_result = locateUserStatement.executeQuery();
+        byte[] hash1 = null;
+        byte[] hash2 = null;
+        byte[] salt = null;
+        
+        while (locate_result.next()) {
+          salt = locate_result.getBytes("salt");
+          // calculate hash based on user input 
+          KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, HASH_STRENGTH, KEY_LENGTH);
+
+          // Generate the hash
+          SecretKeyFactory factory = null;
+
+          try {
+            factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            hash1 = factory.generateSecret(spec).getEncoded();
+          } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
+            throw new IllegalStateException();
+          }
+          
+          // compare with database hash
+          hash2 = locate_result.getBytes("password");
+          
+          if (Arrays.equals(hash1, hash2)) {
+            locate_result.close();
+            currentUser = username;
+            isLogin = true;
+            return "Logged in as " + username + "\n";
+          }
+        }
+        locate_result.close();
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
       return "Login failed\n";
     } finally {
       checkDanglingTransaction();
@@ -152,9 +209,9 @@ public class Query {
     try {
       try {
 
-        // check balance 
-        if (initAmount <0) {
-          return "intial balance mistake";
+        // check balance
+        if (initAmount < 0) {
+          return "Failed to create user\n";
         }
 
         // check username
@@ -163,10 +220,9 @@ public class Query {
         ResultSet checkUsernameResult = checkUsername.executeQuery(isUsernameExist);
 
         while (checkUsernameResult.next()) {
-          return "Username exist\n";
+          return "Failed to create user\n";
         }
         checkUsernameResult.close();
-
 
         // generate password
         SecureRandom random = new SecureRandom();
@@ -184,22 +240,23 @@ public class Query {
           throw new IllegalStateException();
         }
 
-        try {
-          String insertSQL = "INSERT INTO USERS (username, password, salt, balance) "
-              + "VALUES (\'" + username + "\', ? , ? , " + initAmount + ")" ;
-          System.out.println(insertSQL);
-          PreparedStatement insertStatement = conn.prepareStatement(insertSQL);
-          insertStatement.setBytes(1, hash);
-          insertStatement.setBytes(2, salt);
-          insertStatement.executeUpdate();
-          return "User successfully created!";
-        } catch (SQLException e) {
-        e.printStackTrace();
-        }
+        String insertSQL = "INSERT INTO USERS (username, password, salt, balance) " + "VALUES (\'" + username
+            + "\', ? , ? , " + initAmount + ")";
 
+        PreparedStatement insertStatement = conn.prepareStatement(insertSQL);
+        insertStatement.setBytes(1, hash);
+        insertStatement.setBytes(2, salt);
+        insertStatement.executeUpdate();
+        insertStatement.close();
+        return "Created user " + username + "\n";
+
+      } catch (SQLException e) {
+        e.printStackTrace();
+      }
       return "Failed to create user\n";
     } finally {
       checkDanglingTransaction();
+
     }
   }
 
