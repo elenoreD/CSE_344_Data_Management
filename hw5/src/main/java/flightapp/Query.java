@@ -39,6 +39,14 @@ public class Query {
   private static final String locateUser_SQL = "SELECT password, salt FROM USERS U WHERE U.username = ?";
   private PreparedStatement locateUserStatement;
 
+  // For search for direct flight
+  private static final String directSearch_SQL = "SELECT TOP ( ? ) day_of_month,carrier_id,flight_num,origin_city,dest_city,actual_time,capacity,price FROM Flights  WHERE origin_city = ?  AND dest_city =  ? AND day_of_month = ?  ORDER BY actual_time ASC";
+  private PreparedStatement directSearchStatement;
+
+  // For search for direct & one stop flight
+  private static final String unsafeSearch_SQL = "SELECT TOP ( ? ) day_of_month,carrier_id,flight_num,origin_city,dest_city,actual_time,capacity,price FROM Flights  WHERE origin_city = ?  AND dest_city =  ? AND day_of_month = ?  ORDER BY actual_time ASC";
+  private PreparedStatement unsafeSearchStatement;
+
   // TODO: YOUR CODE HERE
 
   public Query() throws SQLException, IOException {
@@ -133,6 +141,7 @@ public class Query {
     clearUSERStatement = conn.prepareStatement(CLEARTABLE_USERS_SQL);
     clearRESERVATIONstatement = conn.prepareStatement(CLEARTABLE_RESERVATIONS_SQL);
     locateUserStatement = conn.prepareStatement(locateUser_SQL);
+    directSearchStatement = conn.prepareStatement(directSearch_SQL);
 
     // TODO: YOUR CODE HERE
   }
@@ -158,10 +167,10 @@ public class Query {
         byte[] hash1 = null;
         byte[] hash2 = null;
         byte[] salt = null;
-        
+
         while (locate_result.next()) {
           salt = locate_result.getBytes("salt");
-          // calculate hash based on user input 
+          // calculate hash based on user input
           KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, HASH_STRENGTH, KEY_LENGTH);
 
           // Generate the hash
@@ -173,10 +182,10 @@ public class Query {
           } catch (NoSuchAlgorithmException | InvalidKeySpecException ex) {
             throw new IllegalStateException();
           }
-          
+
           // compare with database hash
           hash2 = locate_result.getBytes("password");
-          
+
           if (Arrays.equals(hash1, hash2)) {
             locate_result.close();
             currentUser = username;
@@ -293,50 +302,92 @@ public class Query {
    *
    * @see Flight#toString()
    */
-  public String transaction_search(String originCity, String destinationCity, boolean directFlight, int dayOfMonth,
-      int numberOfItineraries) {
+  public String transaction_search(String originCity, String destinationCity, boolean directFlight, int dayOfMonth, int numberOfItineraries) {
     try {
       // WARNING the below code is unsafe and only handles searches for direct flights
       // You can use the below code as a starting reference point or you can get rid
       // of it all and replace it with your own implementation.
       //
-      // TODO: YOUR CODE HERE
+      if (directFlight) {
+        // direct flight 
 
-      StringBuffer sb = new StringBuffer();
+        StringBuffer sb = new StringBuffer();
+        try {
+          unsafeSearchStatement.setInt(1, numberOfItineraries);
+          unsafeSearchStatement.setString(2, originCity);
+          unsafeSearchStatement.setString(3, destinationCity);
+          unsafeSearchStatement.setInt(4, dayOfMonth);
+          unsafeSearchStatement.executeUpdate();
+          unsafeSearchStatement.close();
+          ResultSet oneHopResults = unsafeSearchStatement.executeQuery();
 
-      try {
-        // one hop itineraries
-        String unsafeSearchSQL = "SELECT TOP (" + numberOfItineraries
-            + ") day_of_month,carrier_id,flight_num,origin_city,dest_city,actual_time,capacity,price " + "FROM Flights "
-            + "WHERE origin_city = \'" + originCity + "\' AND dest_city = \'" + destinationCity
-            + "\' AND day_of_month =  " + dayOfMonth + " " + "ORDER BY actual_time ASC";
+          while (oneHopResults.next()) {
+            int result_dayOfMonth = oneHopResults.getInt("day_of_month");
+            String result_carrierId = oneHopResults.getString("carrier_id");
+            String result_flightNum = oneHopResults.getString("flight_num");
+            String result_originCity = oneHopResults.getString("origin_city");
+            String result_destCity = oneHopResults.getString("dest_city");
+            int result_time = oneHopResults.getInt("actual_time");
+            int result_capacity = oneHopResults.getInt("capacity");
+            int result_price = oneHopResults.getInt("price");
 
-        Statement searchStatement = conn.createStatement();
-        ResultSet oneHopResults = searchStatement.executeQuery(unsafeSearchSQL);
-
-        while (oneHopResults.next()) {
-          int result_dayOfMonth = oneHopResults.getInt("day_of_month");
-          String result_carrierId = oneHopResults.getString("carrier_id");
-          String result_flightNum = oneHopResults.getString("flight_num");
-          String result_originCity = oneHopResults.getString("origin_city");
-          String result_destCity = oneHopResults.getString("dest_city");
-          int result_time = oneHopResults.getInt("actual_time");
-          int result_capacity = oneHopResults.getInt("capacity");
-          int result_price = oneHopResults.getInt("price");
-
-          sb.append("Day: " + result_dayOfMonth + " Carrier: " + result_carrierId + " Number: " + result_flightNum
-              + " Origin: " + result_originCity + " Destination: " + result_destCity + " Duration: " + result_time
-              + " Capacity: " + result_capacity + " Price: " + result_price + "\n");
+            sb.append("Day: " + result_dayOfMonth + " Carrier: " + result_carrierId + " Number: " + result_flightNum
+                + " Origin: " + result_originCity + " Destination: " + result_destCity + " Duration: " + result_time
+                + " Capacity: " + result_capacity + " Price: " + result_price + "\n");
+          } 
+          oneHopResults.close();
+        } catch (SQLException e) {
+          e.printStackTrace();
         }
-        oneHopResults.close();
-      } catch (SQLException e) {
-        e.printStackTrace();
-      }
+        if (sb.length() == 0){
+          return "No flights match your selection\n";
+        } else {
+        return sb.toString();
+        }
+      } 
+      // one stop flight
+      else {
+        StringBuffer sb = new StringBuffer();
+        
 
-      return sb.toString();
+        try {
+          // one hop itineraries
+          directSearchStatement.setInt(1, numberOfItineraries);
+          directSearchStatement.setString(2, originCity);
+          directSearchStatement.setString(3, destinationCity);
+          directSearchStatement.setInt(4, dayOfMonth);
+          directSearchStatement.executeUpdate();
+          directSearchStatement.close();
+          ResultSet oneHopResults = directSearchStatement.executeQuery();
+
+          while (oneHopResults.next()) {
+            int result_dayOfMonth = oneHopResults.getInt("day_of_month");
+            String result_carrierId = oneHopResults.getString("carrier_id");
+            String result_flightNum = oneHopResults.getString("flight_num");
+            String result_originCity = oneHopResults.getString("origin_city");
+            String result_destCity = oneHopResults.getString("dest_city");
+            int result_time = oneHopResults.getInt("actual_time");
+            int result_capacity = oneHopResults.getInt("capacity");
+            int result_price = oneHopResults.getInt("price");
+
+            sb.append("Day: " + result_dayOfMonth + " Carrier: " + result_carrierId + " Number: " + result_flightNum
+                + " Origin: " + result_originCity + " Destination: " + result_destCity + " Duration: " + result_time
+                + " Capacity: " + result_capacity + " Price: " + result_price + "\n");
+          } 
+          oneHopResults.close();
+        } catch (SQLException e) {
+          e.printStackTrace();
+        }
+        if (sb.length() == 0){
+          return "No flights match your selection\n";
+        } else {
+        return sb.toString();
+        } 
+      }
     } finally {
       checkDanglingTransaction();
     }
+
   }
 
   /**
