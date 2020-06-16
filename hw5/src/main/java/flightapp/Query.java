@@ -40,12 +40,12 @@ public class Query {
   private PreparedStatement locateUserStatement;
 
   // For search for direct flight
-  private static final String directSearch_SQL = "SELECT TOP ( ? ) day_of_month,carrier_id,flight_num,origin_city,dest_city,actual_time,capacity,price FROM Flights  WHERE origin_city = ?  AND dest_city =  ? AND day_of_month = ?  ORDER BY actual_time ASC";
+  private static final String directSearch_SQL = "SELECT TOP ( ? ) day_of_month,carrier_id,flight_num,origin_city,dest_city,actual_time,capacity,price FROM Flights WHERE origin_city = ?  AND dest_city =  ? AND day_of_month = ?  ORDER BY actual_time ASC";
   private PreparedStatement directSearchStatement;
 
   // For search for direct & one stop flight
-  private static final String unsafeSearch_SQL = "SELECT TOP ( ? ) day_of_month,carrier_id,flight_num,origin_city,dest_city,actual_time,capacity,price FROM Flights  WHERE origin_city = ?  AND dest_city =  ? AND day_of_month = ?  ORDER BY actual_time ASC";
-  private PreparedStatement unsafeSearchStatement;
+  private static final String multipleSearch_SQL = "SELECT TOP ( ? ) F1.day_of_month AS day1, F1.carrier_id as carrier1,F1.flight_num as flightnum1,F1.origin_city as origincity1,F1.dest_city as destcity1,F1.actual_time as actualtime1,F1.capacity as capacity1,F1.price as price1 FROM Flights F1, Flights F2 WHERE origin_city = ?  AND dest_city =  ? AND day_of_month = ?  ORDER BY actual_time ASC";
+  private PreparedStatement multipleSearchStatement;
 
   // TODO: YOUR CODE HERE
 
@@ -142,7 +142,7 @@ public class Query {
     clearRESERVATIONstatement = conn.prepareStatement(CLEARTABLE_RESERVATIONS_SQL);
     locateUserStatement = conn.prepareStatement(locateUser_SQL);
     directSearchStatement = conn.prepareStatement(directSearch_SQL);
-
+    multipleSearchStatement = conn.prepareStatement(multipleSearch_SQL);
     // TODO: YOUR CODE HERE
   }
 
