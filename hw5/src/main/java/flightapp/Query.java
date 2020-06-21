@@ -17,6 +17,7 @@ public class Query {
   private boolean isLogin;
   private String currentUser;
   private List<List<Integer>> itineraries;
+  private int currentSEED;
 
   // Password hashing parameter constants
   private static final int HASH_STRENGTH = 65536;
@@ -28,7 +29,7 @@ public class Query {
 
   // For clear table
   private static final String CLEARTABLE_USERS_SQL = "delete from USERS";
-  private static final String CLEARTABLE_RESERVATIONS_SQL = "delete from RESERVATIONS";
+  private static final String CLEARTABLE_RESERVATIONS_SQL = "truncate table RESERVATIONS";
   private PreparedStatement clearUSERStatement;
   private PreparedStatement clearRESERVATIONstatement;
 
@@ -46,15 +47,33 @@ public class Query {
 
   // For search for direct & one stop flight
   private static final String multipleSearch_SQL = "SELECT * FROM (SELECT  TOP ( ? ) * from (SELECT 2 AS NUMBER, (F1.actual_time + F2.actual_time) as total_time, F1.fid as fid1, F1.day_of_month AS day1, F1.carrier_id as carrier1,F1.flight_num as flightnum1,F1.origin_city as origincity1,F1.dest_city as destcity1,F1.actual_time as actualtime1,F1.capacity as capacity1,F1.price as price1, F2.fid as fid2, F2.day_of_month AS day2, F2.carrier_id as carrier2,F2.flight_num as flightnum2,F2.origin_city as origincity2,F2.dest_city as destcity2,F2.actual_time as actualtime2,F2.capacity as capacity2,F2.price as price2 FROM Flights F1, Flights F2 WHERE F1.dest_city = F2.origin_city and F1.origin_city = ?  AND F2.dest_city =  ? AND F1.day_of_month = ? and F2.day_of_month = ?  and F1.month_id=F2.month_id and F1.canceled=0 and F2.canceled=0                UNION        SELECT 1 AS NUMBER, F3.actual_time as total_time, F3.fid as fid1, F3.day_of_month AS day1, F3.carrier_id as carrier1,F3.flight_num as flightnum1,F3.origin_city as origincity1,F3.dest_city as destcity1,F3.actual_time as actualtime1,F3.capacity as capacity1,F3.price as price1,  NULL as fid2, NULL AS day2, NULL as carrier2, NULL as flightnum2 , NULL as origincity2,NULL as destcity2,NULL as actualtime2,NULL as capacity2,NULL as price2 FROM Flights F3 WHERE F3.origin_city = ?  AND F3.dest_city =  ? AND F3.day_of_month = ?  ) AS TOTAL_FLIGHT ORDER BY NUMBER, total_time) AS M ORDER BY total_time ";
-
   private PreparedStatement multipleSearchStatement;
 
-  // TODO: YOUR CODE HERE
+  // For check same day 
+  private static final String sameDay_SQL = "SELECT * from Flights F join RESERVATIONS R on F.fid=R.flight_id1 WHERE F.day_of_month = ? and R.user_name = ?";
+  private PreparedStatement sameDayStatement;
+
+  // For check capacity
+  private static final String checkCapacity_SQL = "SELECT count(*) as capacity_number from RESERVATIONS R where flight_id1 = ? or flight_id2 = ?";
+  private PreparedStatement checkCapacityStatement;
+
+  // For create reservation
+  private static final String createReservation_SQL = "Insert into RESERVATIONS(user_name, flight_id1, flight_id2, isPaid) values (?, ?, ?, 0)";
+  private PreparedStatement createReservationStatement;
+
+  // For remove the failed auto primary key
+  private static final String RESEED_SQL = "DBCC CHECKIDENT ('RESERVATIONS', RESEED, ?)";;
+  private PreparedStatement RESEEDStatement;
+
+  // For check user exist for login
+  // private static final String locateUser_SQL = "SELECT password, salt FROM USERS U WHERE U.username = ?";
+  // private PreparedStatement locateUserStatement;
 
   public Query() throws SQLException, IOException {
     this(null, null, null, null);
     isLogin = false;
     currentUser = null;
+    currentSEED = 0;
   }
 
   protected Query(String serverURL, String dbName, String adminName, String password) throws SQLException, IOException {
@@ -129,6 +148,9 @@ public class Query {
     try {
       clearUSERStatement.executeUpdate();
       clearRESERVATIONstatement.executeUpdate();
+      RESEEDStatement.clearParameters();
+      RESEEDStatement.setInt(1, 1);
+      RESEEDStatement.executeUpdate();
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -145,6 +167,10 @@ public class Query {
     locateUserStatement = conn.prepareStatement(locateUser_SQL);
     directSearchStatement = conn.prepareStatement(directSearch_SQL);
     multipleSearchStatement = conn.prepareStatement(multipleSearch_SQL);
+    sameDayStatement = conn.prepareStatement(sameDay_SQL);
+    checkCapacityStatement = conn.prepareStatement(checkCapacity_SQL);
+    createReservationStatement = conn.prepareStatement(createReservation_SQL);
+    RESEEDStatement = conn.prepareStatement(RESEED_SQL);
     // TODO: YOUR CODE HERE
   }
 
@@ -451,7 +477,92 @@ public class Query {
    */
   public String transaction_book(int itineraryId) {
     try {
-      // TODO: YOUR CODE HERE
+      // if login
+      if (isLogin==false) {
+        return "Cannot book reservations, not logged in\n";
+      }
+      if (itineraries == null || itineraryId >= itineraries.size() || itineraryId <0) {
+        return "No such itinerary " + itineraryId + "\n";
+      }
+      boolean deadLock = true;
+      while (deadLock==true){
+        deadLock= false;
+        try {
+          conn.setAutoCommit(false);
+          // check same date
+          sameDayStatement.clearParameters();
+          sameDayStatement.setInt(1, itineraries.get(itineraryId).get(0));
+          sameDayStatement.setString(2, currentUser);
+          ResultSet sameDayresults = sameDayStatement.executeQuery();
+          if (sameDayresults.next()) {
+            sameDayresults.close();
+            conn.commit();
+            conn.setAutoCommit(true);
+            return "You cannot book two flights in the same day\n";
+          }
+          sameDayresults.close();
+
+          // check capacity 
+          checkCapacityStatement.clearParameters();
+          checkCapacityStatement.setInt(1, itineraries.get(itineraryId).get(1));
+          checkCapacityStatement.setInt(2, itineraries.get(itineraryId).get(1));
+          ResultSet checkCapacityresults = checkCapacityStatement.executeQuery();
+
+          checkCapacityresults.next();
+          int cap_left = itineraries.get(itineraryId).get(2) - checkCapacityresults.getInt("capacity_number");
+          checkCapacityresults.close();
+          
+          if (itineraries.get(itineraryId).get(3) != null) {
+            checkCapacityStatement.clearParameters();
+            checkCapacityStatement.setInt(1, itineraries.get(itineraryId).get(3));
+            checkCapacityStatement.setInt(2, itineraries.get(itineraryId).get(3));
+            checkCapacityresults = checkCapacityStatement.executeQuery();
+
+            checkCapacityresults.next();
+            cap_left = Math.min(cap_left, itineraries.get(itineraryId).get(4) - checkCapacityresults.getInt("capacity_number"));
+            checkCapacityresults.close();
+          }
+
+          if (cap_left>0) {
+            createReservationStatement.clearParameters();
+            createReservationStatement.setString(1, currentUser);
+            createReservationStatement.setInt(2, itineraries.get(itineraryId).get(1));
+            if (itineraries.get(itineraryId).get(3) != null) {
+              createReservationStatement.setInt(3, itineraries.get(itineraryId).get(3));
+            } else {createReservationStatement.setNull(3, java.sql.Types.INTEGER);}
+            
+            createReservationStatement.executeUpdate();
+
+            ResultSet createReservationResult = createReservationStatement.getGeneratedKeys();
+            createReservationResult.next();
+            int reservation_id = createReservationResult.getInt(1);
+            currentSEED = reservation_id;
+            createReservationResult.close();
+            conn.commit();
+            conn.setAutoCommit(true);
+
+            return "Booked flight(s), reservation ID: " + reservation_id + "\n";
+          }
+          conn.rollback();
+          conn.setAutoCommit(true);
+          
+        } catch (SQLException e) {
+          deadLock = isDeadLock(e);
+          if (deadLock) {
+            try {
+              conn.rollback();
+              conn.setAutoCommit(true);
+              RESEEDStatement.clearParameters();
+              RESEEDStatement.setInt(1, currentSEED);
+              RESEEDStatement.executeUpdate();
+            }catch (SQLException f) {
+              f.printStackTrace();
+            }
+          }
+          e.printStackTrace();
+        }
+      }
+          
       return "Booking failed\n";
     } finally {
       checkDanglingTransaction();
