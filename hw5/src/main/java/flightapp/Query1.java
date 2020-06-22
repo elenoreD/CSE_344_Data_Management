@@ -11,7 +11,7 @@ import javax.crypto.spec.*;
 /**
  * Runs queries against a back-end database
  */
-public class Query {
+public class Query1 {
   // DB Connection
   private Connection conn;
   private boolean isLogin;
@@ -69,14 +69,14 @@ public class Query {
   // private static final String locateUser_SQL = "SELECT password, salt FROM USERS U WHERE U.username = ?";
   // private PreparedStatement locateUserStatement;
 
-  public Query() throws SQLException, IOException {
+  public Query1() throws SQLException, IOException {
     this(null, null, null, null);
     isLogin = false;
     currentUser = null;
     currentSEED = 0;
   }
 
-  protected Query(String serverURL, String dbName, String adminName, String password) throws SQLException, IOException {
+  protected Query1(String serverURL, String dbName, String adminName, String password) throws SQLException, IOException {
     conn = serverURL == null ? openConnectionFromDbConn()
         : openConnectionFromCredential(serverURL, dbName, adminName, password);
 
@@ -169,7 +169,7 @@ public class Query {
     multipleSearchStatement = conn.prepareStatement(multipleSearch_SQL);
     sameDayStatement = conn.prepareStatement(sameDay_SQL);
     checkCapacityStatement = conn.prepareStatement(checkCapacity_SQL);
-    createReservationStatement = conn.prepareStatement(createReservation_SQL, Statement.RETURN_GENERATED_KEYS);
+    createReservationStatement = conn.prepareStatement(createReservation_SQL);
     RESEEDStatement = conn.prepareStatement(RESEED_SQL);
     // TODO: YOUR CODE HERE
   }
@@ -518,27 +518,26 @@ public class Query {
             checkCapacityStatement.setInt(1, itineraries.get(itineraryId).get(3));
             checkCapacityStatement.setInt(2, itineraries.get(itineraryId).get(3));
             checkCapacityresults = checkCapacityStatement.executeQuery();
+
             checkCapacityresults.next();
             cap_left = Math.min(cap_left, itineraries.get(itineraryId).get(4) - checkCapacityresults.getInt("capacity_number"));
             checkCapacityresults.close();
           }
 
           if (cap_left>0) {
-            
             createReservationStatement.clearParameters();
             createReservationStatement.setString(1, currentUser);
             createReservationStatement.setInt(2, itineraries.get(itineraryId).get(1));
-            if (itineraries.get(itineraryId).size() > 3) {
+            if (itineraries.get(itineraryId).size()>3) {
               createReservationStatement.setInt(3, itineraries.get(itineraryId).get(3));
             } else {createReservationStatement.setNull(3, java.sql.Types.INTEGER);}
-
-            createReservationStatement.executeUpdate();
             
-            ResultSet createReservationResult = createReservationStatement.getGeneratedKeys();
+            createReservationStatement.executeUpdate();
 
+            ResultSet createReservationResult = createReservationStatement.getGeneratedKeys();
             createReservationResult.next();
             int reservation_id = createReservationResult.getInt(1);
-            currentSEED = reservation_id-1;
+            currentSEED = reservation_id;
             createReservationResult.close();
             conn.commit();
             conn.setAutoCommit(true);
@@ -562,23 +561,31 @@ public class Query {
           
             }
             
-          }         
+          }
+          
           e.printStackTrace();
         }
         
       }
-      try {
-        conn.commit();
-        conn.setAutoCommit(true);
-        
-      }catch (SQLException f) {
-        f.printStackTrace();
-    
-      }
+      
      
       return "Booking failed\n";
     } finally {
       checkDanglingTransaction();
+   
+  //     try {
+  //       boolean initialAutocommit = false;
+  //       if (initialAutocommit) {
+  //         conn.setAutoCommit(true);
+  //       }
+  //       conn.close();
+  //   } catch (Throwable e) {
+  //     // Use your own logger here. And again, maybe not catch throwable,
+  //     // but then again, you should never throw from a finally ;)
+  //     StringWriter out = new StringWriter();
+  //     e.printStackTrace(new PrintWriter(out));
+  //     System.err.println("Could not close connection " + out.toString());
+  // }
     }
   }
 
@@ -601,14 +608,7 @@ public class Query {
    */
   public String transaction_pay(int reservationId) {
     try {
-      // check is login
-
-      // reservation not found (select sum(price) return result 0 id equal, username check, ispaid=0)
-
-      // no enough balance (select balance > price return balance)
-
-      // pay excuteupdate () (select update balance-pay, ispaid --> true)
-
+      // TODO: YOUR CODE HERE
       return "Failed to pay for reservation " + reservationId + "\n";
     } finally {
       checkDanglingTransaction();
