@@ -65,7 +65,8 @@ public class Query {
   private static final String RESEED_SQL = "DBCC CHECKIDENT ('RESERVATIONS', RESEED, ?)";;
   private PreparedStatement RESEEDStatement;
 
-  // For check user exist for login
+  // for check reservation exist 
+  // reservation not found (select sum(price) return result 0 id equal, username check, ispaid=0)
   // private static final String locateUser_SQL = "SELECT password, salt FROM USERS U WHERE U.username = ?";
   // private PreparedStatement locateUserStatement;
 
@@ -538,15 +539,15 @@ public class Query {
 
             createReservationResult.next();
             int reservation_id = createReservationResult.getInt(1);
-            currentSEED = reservation_id-1;
+            currentSEED = reservation_id+1;
             createReservationResult.close();
             conn.commit();
             conn.setAutoCommit(true);
 
             return "Booked flight(s), reservation ID: " + reservation_id + "\n";
           }
-          conn.rollback();
-          conn.setAutoCommit(true);
+          // conn.rollback();
+          // conn.setAutoCommit(true);
           
         } catch (SQLException e) {
           deadLock = isDeadLock(e);
@@ -602,7 +603,10 @@ public class Query {
   public String transaction_pay(int reservationId) {
     try {
       // check is login
-
+      if (isLogin==false) {
+        return "Cannot pay, not logged in\n";
+      }
+     
       // reservation not found (select sum(price) return result 0 id equal, username check, ispaid=0)
 
       // no enough balance (select balance > price return balance)
