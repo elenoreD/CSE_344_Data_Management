@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="flightapp.FlightServiceTest" time="11.192" tests="1" errors="0" skipped="0" failures="1">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="flightapp.FlightServiceTest" time="15.816" tests="1" errors="0" skipped="0" failures="1">
   <properties>
     <property name="java.specification.version" value="13"/>
     <property name="test.cases" value="cases/no_transaction/pay/pay_already.txt"/>
@@ -13,7 +13,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="CN"/>
     <property name="sun.boot.library.path" value="/usr/local/Cellar/openjdk/13.0.2+8_2/libexec/openjdk.jdk/Contents/Home/lib"/>
-    <property name="sun.java.command" value="/Users/aaa/Desktop/CSE_344_Data_Management/hw5/target/surefire/surefirebooter5963283066734925323.jar /Users/aaa/Desktop/CSE_344_Data_Management/hw5/target/surefire 2020-06-23T21-12-50_751-jvmRun1 surefire832875590365036550tmp surefire_015738945265188059394tmp"/>
+    <property name="sun.java.command" value="/Users/aaa/Desktop/CSE_344_Data_Management/hw5/target/surefire/surefirebooter3751794709359146150.jar /Users/aaa/Desktop/CSE_344_Data_Management/hw5/target/surefire 2020-06-23T23-16-01_602-jvmRun1 surefire3642331086326210014tmp surefire_06757391815607858535tmp"/>
     <property name="http.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/Users/aaa/Desktop/CSE_344_Data_Management/hw5/target/test-classes:/Users/aaa/Desktop/CSE_344_Data_Management/hw5/target/classes:/Users/aaa/.m2/repository/junit/junit/4.13/junit-4.13.jar:/Users/aaa/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/aaa/.m2/repository/com/microsoft/sqlserver/mssql-jdbc/8.2.0.jre11/mssql-jdbc-8.2.0.jre11.jar:/Users/aaa/.m2/repository/org/mybatis/mybatis/3.5.4/mybatis-3.5.4.jar:"/>
@@ -29,7 +29,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
-    <property name="surefire.real.class.path" value="/Users/aaa/Desktop/CSE_344_Data_Management/hw5/target/surefire/surefirebooter5963283066734925323.jar"/>
+    <property name="surefire.real.class.path" value="/Users/aaa/Desktop/CSE_344_Data_Management/hw5/target/surefire/surefirebooter3751794709359146150.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="ftp.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="java.runtime.version" value="13.0.2+8"/>
@@ -54,18 +54,18 @@
     <property name="socksNonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="java.class.version" value="57.0"/>
   </properties>
-  <testcase name="runTest[0]" classname="flightapp.FlightServiceTest" time="6.641">
-    <failure message="Failed: actual outputs for /Users/aaa/Desktop/CSE_344_Data_Management/hw5/cases/no_transaction/pay/pay_already.txt were: &#10;[Cannot pay, not logged in&#10;Created user user1&#10;Logged in as user1&#10;Failed to pay for reservation 1&#10;Itinerary 0: 1 flight(s), 297 minutes&#10;ID: 60454 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 14 Price: 140&#10;Booked flight(s), reservation ID: 1&#10;Failed to pay for reservation 1&#10;Failed to pay for reservation 1&#10;Goodbye&#10;]&#10;&#10;Possible outcomes were: &#10;===== Outcome 0 =====&#10;[Cannot pay, not logged in&#10;Created user user1&#10;Logged in as user1&#10;Cannot find unpaid reservation 1 under user: user1&#10;Itinerary 0: 1 flight(s), 297 minutes&#10;ID: 60454 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 14 Price: 140&#10;Booked flight(s), reservation ID: 1&#10;Paid reservation: 1 remaining balance: 99860&#10;Cannot find unpaid reservation 1 under user: user1&#10;Goodbye&#10;]&#10;" type="java.lang.AssertionError"><![CDATA[java.lang.AssertionError: 
+  <testcase name="runTest[0]" classname="flightapp.FlightServiceTest" time="7.944">
+    <failure message="Failed: actual outputs for /Users/aaa/Desktop/CSE_344_Data_Management/hw5/cases/no_transaction/pay/pay_already.txt were: &#10;[Cannot pay, not logged in&#10;Created user user1&#10;Logged in as user1&#10;Cannot find unpaid reservation 1 under user: user1&#10;Itinerary 0: 1 flight(s), 297 minutes&#10;ID: 60454 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 14 Price: 140&#10;Booked flight(s), reservation ID: 1&#10;Paid reservation: 1 remaining balance: 100000&#10;Cannot find unpaid reservation 1 under user: user1&#10;Goodbye&#10;]&#10;&#10;Possible outcomes were: &#10;===== Outcome 0 =====&#10;[Cannot pay, not logged in&#10;Created user user1&#10;Logged in as user1&#10;Cannot find unpaid reservation 1 under user: user1&#10;Itinerary 0: 1 flight(s), 297 minutes&#10;ID: 60454 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 14 Price: 140&#10;Booked flight(s), reservation ID: 1&#10;Paid reservation: 1 remaining balance: 99860&#10;Cannot find unpaid reservation 1 under user: user1&#10;Goodbye&#10;]&#10;" type="java.lang.AssertionError"><![CDATA[java.lang.AssertionError: 
 Failed: actual outputs for /Users/aaa/Desktop/CSE_344_Data_Management/hw5/cases/no_transaction/pay/pay_already.txt were: 
 [Cannot pay, not logged in
 Created user user1
 Logged in as user1
-Failed to pay for reservation 1
+Cannot find unpaid reservation 1 under user: user1
 Itinerary 0: 1 flight(s), 297 minutes
 ID: 60454 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 14 Price: 140
 Booked flight(s), reservation ID: 1
-Failed to pay for reservation 1
-Failed to pay for reservation 1
+Paid reservation: 1 remaining balance: 100000
+Cannot find unpaid reservation 1 under user: user1
 Goodbye
 ]
 
@@ -87,68 +87,8 @@ Goodbye
 ]]></failure>
     <system-out><![CDATA[running setup
 running test scenario: /Users/aaa/Desktop/CSE_344_Data_Management/hw5/cases/no_transaction/pay/pay_already.txt
-lalala
-start to check nonthing
-lalala
-start to check nonthing
-lalala
-start to check nonthing
+99860
 failed
 ]]></system-out>
-    <system-err><![CDATA[com.microsoft.sqlserver.jdbc.SQLServerException: The multi-part identifier "F2.fid" could not be bound.
-	at com.microsoft.sqlserver.jdbc.SQLServerException.makeFromDatabaseError(SQLServerException.java:262)
-	at com.microsoft.sqlserver.jdbc.SQLServerStatement.getNextResult(SQLServerStatement.java:1632)
-	at com.microsoft.sqlserver.jdbc.SQLServerPreparedStatement.doExecutePreparedStatement(SQLServerPreparedStatement.java:600)
-	at com.microsoft.sqlserver.jdbc.SQLServerPreparedStatement$PrepStmtExecCmd.doExecute(SQLServerPreparedStatement.java:522)
-	at com.microsoft.sqlserver.jdbc.TDSCommand.execute(IOBuffer.java:7225)
-	at com.microsoft.sqlserver.jdbc.SQLServerConnection.executeCommand(SQLServerConnection.java:3053)
-	at com.microsoft.sqlserver.jdbc.SQLServerStatement.executeCommand(SQLServerStatement.java:247)
-	at com.microsoft.sqlserver.jdbc.SQLServerStatement.executeStatement(SQLServerStatement.java:222)
-	at com.microsoft.sqlserver.jdbc.SQLServerPreparedStatement.executeQuery(SQLServerPreparedStatement.java:444)
-	at flightapp.Query.transaction_pay(Query.java:641)
-	at flightapp.FlightService.execute(FlightService.java:82)
-	at flightapp.FlightServiceTest$User.call(FlightServiceTest.java:78)
-	at flightapp.FlightServiceTest$User.call(FlightServiceTest.java:1)
-	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
-	at java.base/java.lang.Thread.run(Thread.java:830)
-com.microsoft.sqlserver.jdbc.SQLServerException: The multi-part identifier "F2.fid" could not be bound.
-	at com.microsoft.sqlserver.jdbc.SQLServerException.makeFromDatabaseError(SQLServerException.java:262)
-	at com.microsoft.sqlserver.jdbc.SQLServerStatement.getNextResult(SQLServerStatement.java:1632)
-	at com.microsoft.sqlserver.jdbc.SQLServerPreparedStatement.doExecutePreparedStatement(SQLServerPreparedStatement.java:600)
-	at com.microsoft.sqlserver.jdbc.SQLServerPreparedStatement$PrepStmtExecCmd.doExecute(SQLServerPreparedStatement.java:522)
-	at com.microsoft.sqlserver.jdbc.TDSCommand.execute(IOBuffer.java:7225)
-	at com.microsoft.sqlserver.jdbc.SQLServerConnection.executeCommand(SQLServerConnection.java:3053)
-	at com.microsoft.sqlserver.jdbc.SQLServerStatement.executeCommand(SQLServerStatement.java:247)
-	at com.microsoft.sqlserver.jdbc.SQLServerStatement.executeStatement(SQLServerStatement.java:222)
-	at com.microsoft.sqlserver.jdbc.SQLServerPreparedStatement.executeQuery(SQLServerPreparedStatement.java:444)
-	at flightapp.Query.transaction_pay(Query.java:641)
-	at flightapp.FlightService.execute(FlightService.java:82)
-	at flightapp.FlightServiceTest$User.call(FlightServiceTest.java:78)
-	at flightapp.FlightServiceTest$User.call(FlightServiceTest.java:1)
-	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
-	at java.base/java.lang.Thread.run(Thread.java:830)
-com.microsoft.sqlserver.jdbc.SQLServerException: The multi-part identifier "F2.fid" could not be bound.
-	at com.microsoft.sqlserver.jdbc.SQLServerException.makeFromDatabaseError(SQLServerException.java:262)
-	at com.microsoft.sqlserver.jdbc.SQLServerStatement.getNextResult(SQLServerStatement.java:1632)
-	at com.microsoft.sqlserver.jdbc.SQLServerPreparedStatement.doExecutePreparedStatement(SQLServerPreparedStatement.java:600)
-	at com.microsoft.sqlserver.jdbc.SQLServerPreparedStatement$PrepStmtExecCmd.doExecute(SQLServerPreparedStatement.java:522)
-	at com.microsoft.sqlserver.jdbc.TDSCommand.execute(IOBuffer.java:7225)
-	at com.microsoft.sqlserver.jdbc.SQLServerConnection.executeCommand(SQLServerConnection.java:3053)
-	at com.microsoft.sqlserver.jdbc.SQLServerStatement.executeCommand(SQLServerStatement.java:247)
-	at com.microsoft.sqlserver.jdbc.SQLServerStatement.executeStatement(SQLServerStatement.java:222)
-	at com.microsoft.sqlserver.jdbc.SQLServerPreparedStatement.executeQuery(SQLServerPreparedStatement.java:444)
-	at flightapp.Query.transaction_pay(Query.java:641)
-	at flightapp.FlightService.execute(FlightService.java:82)
-	at flightapp.FlightServiceTest$User.call(FlightServiceTest.java:78)
-	at flightapp.FlightServiceTest$User.call(FlightServiceTest.java:1)
-	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
-	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
-	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
-	at java.base/java.lang.Thread.run(Thread.java:830)
-]]></system-err>
   </testcase>
 </testsuite>

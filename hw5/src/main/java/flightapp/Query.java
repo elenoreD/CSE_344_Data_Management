@@ -62,23 +62,23 @@ public class Query {
   private PreparedStatement createReservationStatement;
 
   // For remove the failed auto primary key
-  private static final String RESEED_SQL = "DBCC CHECKIDENT ('RESERVATIONS', RESEED, ?)";;
+  private static final String RESEED_SQL = "DBCC CHECKIDENT ('RESERVATIONS', RESEED, ?)";
   private PreparedStatement RESEEDStatement;
 
   // for check reservation exist
-  private static final String ifReservationExist_SQL = "select sum(price) as sumprice from FLIGHTS F1, RESERVATIONS R1 WHERE (F1.fid = R1.flight_id1 or F2.fid = R1.flight_id2) and R1.user_name =? and R1.reservation_id = ? and R1.ispaid=0";
+  private static final String ifReservationExist_SQL = "select sum(F1.price) as sumprice from FLIGHTS F1, RESERVATIONS R1 WHERE (F1.fid = R1.flight_id1 or F1.fid = R1.flight_id2) and R1.user_name =? and R1.reservation_id = ? and R1.ispaid=0";
   private PreparedStatement ifReservationExistStatement;
 
   // For balance enough
-  private static final String balance_SQL = "select balance from USERS where username=?";;
+  private static final String balance_SQL = "select balance from USERS where username=?";
   private PreparedStatement balanceStatement;
 
   // begin to pay
-  private static final String pay_SQL = "update USERS set balance = ? where username = ?";;
+  private static final String pay_SQL = "update USERS set balance = ? where username = ?";
   private PreparedStatement payStatement;
 
   // begin to pay
-  private static final String ispaid_SQL = "update RESERVATIONS set isPaid = 1 where reservation_id = ?";;
+  private static final String ispaid_SQL = "update RESERVATIONS set isPaid = 1 where reservation_id = ?";
   private PreparedStatement ispaidStatement;
 
   public Query() throws SQLException, IOException {
@@ -628,12 +628,15 @@ public class Query {
         return "Cannot pay, not logged in\n";
       }
 
+      
       boolean deadLock = true;
+      
       while (deadLock==true){
         deadLock= false;
         try {
-          System.out.println("lalala");
+          
           conn.setAutoCommit(false);
+          
           // check if reservation exist 
           ifReservationExistStatement.clearParameters();
           ifReservationExistStatement.setString(1, currentUser);
@@ -642,21 +645,16 @@ public class Query {
           int sumprice;
           
           if (ifReservationresults.next()) {
-            System.out.println("there is next ifreservations");
           sumprice = ifReservationresults.getInt("sumprice");
           ifReservationresults.close();
-          
-          System.out.println("before sumprice<0");
 
             if (sumprice <= 0) {
-              System.out.println("sumprice<0");
               conn.commit();
               conn.setAutoCommit(true);
               return "Cannot find unpaid reservation " + reservationId + " under user: " + currentUser + "\n";
             } 
 
             // check balance
-            System.out.println("start to check balance");
 
             balanceStatement.clearParameters();
             balanceStatement.setString(1, currentUser);
@@ -666,21 +664,20 @@ public class Query {
             balance = balanceresults.getInt("balance");
             balanceresults.close();
 
-            System.out.println("start to check balance2");
-
             if (balance<sumprice) {
               conn.commit();
               conn.setAutoCommit(true);
               return "User has only " + balance + " in account but itinerary costs " + sumprice + "\n";
             }
 
-            
 
             // pay
             else{
-              System.out.println("start to check else");
               payStatement.clearParameters();
-              payStatement.setInt(1, balance-sumprice);
+              int a = balance-sumprice;
+              System.out.println(a);
+              
+              payStatement.setInt(1, a);
               payStatement.setString(2, currentUser);
               payStatement.executeUpdate();
 
@@ -717,7 +714,6 @@ public class Query {
     
       // }
   
-  System.out.println("start to check nonthing");
   return"Failed to pay for reservation "+reservationId+"\n";
 
   }finally{checkDanglingTransaction();}}
