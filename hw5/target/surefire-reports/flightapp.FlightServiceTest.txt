@@ -1,51 +1,33 @@
 -------------------------------------------------------------------------------
 Test set: flightapp.FlightServiceTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 16.865 s <<< FAILURE! - in flightapp.FlightServiceTest
-flightapp.FlightServiceTest.runTest[0]  Time elapsed: 11.926 s  <<< FAILURE!
+Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 11.192 s <<< FAILURE! - in flightapp.FlightServiceTest
+flightapp.FlightServiceTest.runTest[0]  Time elapsed: 6.641 s  <<< FAILURE!
 java.lang.AssertionError: 
-Failed: actual outputs for /Users/aaa/Desktop/CSE_344_Data_Management/hw5/cases/transaction/book/book_2users2flights.txt were: 
-[Created user user1
+Failed: actual outputs for /Users/aaa/Desktop/CSE_344_Data_Management/hw5/cases/no_transaction/pay/pay_already.txt were: 
+[Cannot pay, not logged in
+Created user user1
 Logged in as user1
+Failed to pay for reservation 1
 Itinerary 0: 1 flight(s), 297 minutes
 ID: 60454 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 14 Price: 140
-Booking failed
-Goodbye
-, Created user user2
-Logged in as user2
-Itinerary 0: 1 flight(s), 299 minutes
-ID: 720462 Day: 2 Carrier: B6 Number: 498 Origin: Seattle WA Dest: Boston MA Duration: 299 Capacity: 18 Price: 838
 Booked flight(s), reservation ID: 1
+Failed to pay for reservation 1
+Failed to pay for reservation 1
 Goodbye
 ]
 
 Possible outcomes were: 
 ===== Outcome 0 =====
-[Created user user1
+[Cannot pay, not logged in
+Created user user1
 Logged in as user1
+Cannot find unpaid reservation 1 under user: user1
 Itinerary 0: 1 flight(s), 297 minutes
 ID: 60454 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 14 Price: 140
 Booked flight(s), reservation ID: 1
-Goodbye
-, Created user user2
-Logged in as user2
-Itinerary 0: 1 flight(s), 299 minutes
-ID: 720462 Day: 2 Carrier: B6 Number: 498 Origin: Seattle WA Dest: Boston MA Duration: 299 Capacity: 18 Price: 838
-Booked flight(s), reservation ID: 2
-Goodbye
-]
-===== Outcome 1 =====
-[Created user user1
-Logged in as user1
-Itinerary 0: 1 flight(s), 297 minutes
-ID: 60454 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 14 Price: 140
-Booked flight(s), reservation ID: 2
-Goodbye
-, Created user user2
-Logged in as user2
-Itinerary 0: 1 flight(s), 299 minutes
-ID: 720462 Day: 2 Carrier: B6 Number: 498 Origin: Seattle WA Dest: Boston MA Duration: 299 Capacity: 18 Price: 838
-Booked flight(s), reservation ID: 1
+Paid reservation: 1 remaining balance: 99860
+Cannot find unpaid reservation 1 under user: user1
 Goodbye
 ]
 
