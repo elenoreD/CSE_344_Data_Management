@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="flightapp.FlightServiceTest" time="15.816" tests="1" errors="0" skipped="0" failures="1">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="flightapp.FlightServiceTest" time="24.875" tests="1" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="13"/>
-    <property name="test.cases" value="cases/no_transaction/pay/pay_already.txt"/>
+    <property name="test.cases" value="cases/transaction/cancel"/>
     <property name="sun.jnu.encoding" value="UTF-8"/>
     <property name="java.class.path" value="/Users/aaa/Desktop/CSE_344_Data_Management/hw5/target/test-classes:/Users/aaa/Desktop/CSE_344_Data_Management/hw5/target/classes:/Users/aaa/.m2/repository/junit/junit/4.13/junit-4.13.jar:/Users/aaa/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/aaa/.m2/repository/com/microsoft/sqlserver/mssql-jdbc/8.2.0.jre11/mssql-jdbc-8.2.0.jre11.jar:/Users/aaa/.m2/repository/org/mybatis/mybatis/3.5.4/mybatis-3.5.4.jar:"/>
     <property name="java.vm.vendor" value="Oracle Corporation"/>
@@ -13,7 +13,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="CN"/>
     <property name="sun.boot.library.path" value="/usr/local/Cellar/openjdk/13.0.2+8_2/libexec/openjdk.jdk/Contents/Home/lib"/>
-    <property name="sun.java.command" value="/Users/aaa/Desktop/CSE_344_Data_Management/hw5/target/surefire/surefirebooter3751794709359146150.jar /Users/aaa/Desktop/CSE_344_Data_Management/hw5/target/surefire 2020-06-23T23-16-01_602-jvmRun1 surefire3642331086326210014tmp surefire_06757391815607858535tmp"/>
+    <property name="sun.java.command" value="/Users/aaa/Desktop/CSE_344_Data_Management/hw5/target/surefire/surefirebooter1986923638415299837.jar /Users/aaa/Desktop/CSE_344_Data_Management/hw5/target/surefire 2020-06-24T21-11-30_434-jvmRun1 surefire5865404641383278259tmp surefire_016383728314602954121tmp"/>
     <property name="http.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/Users/aaa/Desktop/CSE_344_Data_Management/hw5/target/test-classes:/Users/aaa/Desktop/CSE_344_Data_Management/hw5/target/classes:/Users/aaa/.m2/repository/junit/junit/4.13/junit-4.13.jar:/Users/aaa/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/aaa/.m2/repository/com/microsoft/sqlserver/mssql-jdbc/8.2.0.jre11/mssql-jdbc-8.2.0.jre11.jar:/Users/aaa/.m2/repository/org/mybatis/mybatis/3.5.4/mybatis-3.5.4.jar:"/>
@@ -29,7 +29,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
-    <property name="surefire.real.class.path" value="/Users/aaa/Desktop/CSE_344_Data_Management/hw5/target/surefire/surefirebooter3751794709359146150.jar"/>
+    <property name="surefire.real.class.path" value="/Users/aaa/Desktop/CSE_344_Data_Management/hw5/target/surefire/surefirebooter1986923638415299837.jar"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="ftp.nonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="java.runtime.version" value="13.0.2+8"/>
@@ -54,41 +54,5 @@
     <property name="socksNonProxyHosts" value="local|*.local|169.254/16|*.169.254/16"/>
     <property name="java.class.version" value="57.0"/>
   </properties>
-  <testcase name="runTest[0]" classname="flightapp.FlightServiceTest" time="7.944">
-    <failure message="Failed: actual outputs for /Users/aaa/Desktop/CSE_344_Data_Management/hw5/cases/no_transaction/pay/pay_already.txt were: &#10;[Cannot pay, not logged in&#10;Created user user1&#10;Logged in as user1&#10;Cannot find unpaid reservation 1 under user: user1&#10;Itinerary 0: 1 flight(s), 297 minutes&#10;ID: 60454 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 14 Price: 140&#10;Booked flight(s), reservation ID: 1&#10;Paid reservation: 1 remaining balance: 100000&#10;Cannot find unpaid reservation 1 under user: user1&#10;Goodbye&#10;]&#10;&#10;Possible outcomes were: &#10;===== Outcome 0 =====&#10;[Cannot pay, not logged in&#10;Created user user1&#10;Logged in as user1&#10;Cannot find unpaid reservation 1 under user: user1&#10;Itinerary 0: 1 flight(s), 297 minutes&#10;ID: 60454 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 14 Price: 140&#10;Booked flight(s), reservation ID: 1&#10;Paid reservation: 1 remaining balance: 99860&#10;Cannot find unpaid reservation 1 under user: user1&#10;Goodbye&#10;]&#10;" type="java.lang.AssertionError"><![CDATA[java.lang.AssertionError: 
-Failed: actual outputs for /Users/aaa/Desktop/CSE_344_Data_Management/hw5/cases/no_transaction/pay/pay_already.txt were: 
-[Cannot pay, not logged in
-Created user user1
-Logged in as user1
-Cannot find unpaid reservation 1 under user: user1
-Itinerary 0: 1 flight(s), 297 minutes
-ID: 60454 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 14 Price: 140
-Booked flight(s), reservation ID: 1
-Paid reservation: 1 remaining balance: 100000
-Cannot find unpaid reservation 1 under user: user1
-Goodbye
-]
-
-Possible outcomes were: 
-===== Outcome 0 =====
-[Cannot pay, not logged in
-Created user user1
-Logged in as user1
-Cannot find unpaid reservation 1 under user: user1
-Itinerary 0: 1 flight(s), 297 minutes
-ID: 60454 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 14 Price: 140
-Booked flight(s), reservation ID: 1
-Paid reservation: 1 remaining balance: 99860
-Cannot find unpaid reservation 1 under user: user1
-Goodbye
-]
-
-	at flightapp.FlightServiceTest.runTest(FlightServiceTest.java:282)
-]]></failure>
-    <system-out><![CDATA[running setup
-running test scenario: /Users/aaa/Desktop/CSE_344_Data_Management/hw5/cases/no_transaction/pay/pay_already.txt
-99860
-failed
-]]></system-out>
-  </testcase>
+  <testcase name="runTest[0]" classname="flightapp.FlightServiceTest" time="21.809"/>
 </testsuite>

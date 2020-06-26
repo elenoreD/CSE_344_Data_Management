@@ -81,6 +81,27 @@ public class Query {
   private static final String ispaid_SQL = "update RESERVATIONS set isPaid = 1 where reservation_id = ?";
   private PreparedStatement ispaidStatement;
 
+  // check if reservation
+  private static final String isreservation_SQL = "select * from RESERVATIONS where user_name = ?";
+  private PreparedStatement isreservationStatement;
+
+  // return all reservations
+  private static final String reservation_SQL = "select day_of_month,carrier_id,flight_num,origin_city,dest_city,actual_time,capacity,price from FLIGHTS where fid = ? ";
+  private PreparedStatement reservationStatement;
+
+  // check 
+  private static final String refund_SQL = "select sum(f.price) as refund from FLIGHTS f, RESERVATIONS r where (f.fid = r.flight_id1 or f.fid = r.flight_id2) and r.reservation_id = ? and r.user_name = ? and r.isPaid = 1";
+  private PreparedStatement refundStatement;
+
+  // update
+  private static final String changeBalance_SQL = "UPDATE USERS SET balance = balance + ? FROM USERS WHERE username = ?";
+  private PreparedStatement changeBalanceStatement;
+
+  // delete
+  private static final String delete_SQL = "delete from RESERVATIONS where reservation_id = ?";
+  private PreparedStatement deleteStatement;
+
+
   public Query() throws SQLException, IOException {
     this(null, null, null, null);
     isLogin = false;
@@ -187,6 +208,12 @@ public class Query {
     balanceStatement = conn.prepareStatement(balance_SQL);
     payStatement = conn.prepareStatement(pay_SQL);
     ispaidStatement = conn.prepareStatement(ispaid_SQL);
+    isreservationStatement = conn.prepareStatement(isreservation_SQL);
+    reservationStatement = conn.prepareStatement(reservation_SQL);
+    refundStatement = conn.prepareStatement(refund_SQL);
+    changeBalanceStatement = conn.prepareStatement(changeBalance_SQL);
+    deleteStatement= conn.prepareStatement(delete_SQL);
+
 
 
     // TODO: YOUR CODE HERE
@@ -456,7 +483,7 @@ public class Query {
               sb.append("ID: " + result_fid + " Day: " + result_dayOfMonth + " Carrier: " + result_carrierId
                   + " Number: " + result_flightNum + " Origin: " + result_originCity + " Dest: " + result_destCity
                   + " Duration: " + result_time + " Capacity: " + result_capacity + " Price: " + result_price + "\n");
-            }
+            } 
           }
           multiResults.close();
         } catch (SQLException e) {
@@ -687,7 +714,7 @@ public class Query {
 
               conn.commit();
               conn.setAutoCommit(true);
-              return "Paid reservation: " + reservationId + " remaining balance: " + balance + "\n";
+              return "Paid reservation: " + reservationId + " remaining balance: " + a + "\n";
             }
           
           }
@@ -705,14 +732,14 @@ public class Query {
         }
         
       }
-      // try {
-      //   conn.commit();
-      //   conn.setAutoCommit(true);
+      try {
+        conn.commit();
+        conn.setAutoCommit(true);
         
-      // }catch (SQLException f) {
-      //   f.printStackTrace();
+      }catch (SQLException f) {
+        f.printStackTrace();
     
-      // }
+      }
   
   return"Failed to pay for reservation "+reservationId+"\n";
 
@@ -740,7 +767,99 @@ public class Query {
    */
   public String transaction_reservations() {
     try {
-      // TODO: YOUR CODE HERE
+      // is login
+      if (isLogin==false) {
+        return "Cannot pay, not logged in\n";
+      }
+      // is reservation
+      boolean deadLock = true;
+      
+      while (deadLock==true){
+        deadLock= false;
+        try {
+          conn.setAutoCommit(false);
+          
+          // check if reservation exist 
+          isreservationStatement.clearParameters();
+          isreservationStatement.setString(1, currentUser);
+          ResultSet isreservationresults = isreservationStatement.executeQuery();
+          int i = 0;
+          StringBuffer sb = new StringBuffer();
+          
+          // success
+          while (isreservationresults.next()) {
+            i++;
+            int result_RID = isreservationresults.getInt("reservation_id");
+            int result_fid1 = isreservationresults.getInt("flight_id1");
+            Boolean result_ispaid = isreservationresults.getBoolean("isPaid");
+
+            reservationStatement.clearParameters();
+            reservationStatement.setInt(1, result_fid1);
+            ResultSet reservationresults = reservationStatement.executeQuery();
+
+            reservationresults.next();
+            int result_dayOfMonth = reservationresults.getInt("day_of_month");
+            String result_carrierId = reservationresults.getString("carrier_id");
+            int result_flightNum = reservationresults.getInt("flight_num");
+            String result_originCity = reservationresults.getString("origin_city");
+            String result_destCity = reservationresults.getString("dest_city");
+            int result_time = reservationresults.getInt("actual_time");
+            int result_capacity = reservationresults.getInt("capacity");
+            int result_price = reservationresults.getInt("price");
+            
+            
+            reservationresults.close(); 
+
+            sb.append("Reservation " + result_RID + " paid: " + result_ispaid + ":\n");
+
+            sb.append("ID: " + result_fid1 + " Day: " + result_dayOfMonth + " Carrier: " + result_carrierId + " Number: " + result_flightNum + " Origin: " + result_originCity + " Dest: " + result_destCity + " Duration: " + result_time + " Capacity: " + result_capacity + " Price: " + result_price + "\n");
+
+            int result_fid2 = isreservationresults.getInt("flight_id2");
+            if (!isreservationresults.wasNull()){
+              reservationStatement.clearParameters();
+              reservationStatement.setInt(1, result_fid2);
+              reservationresults = reservationStatement.executeQuery();
+
+              reservationresults.next();
+              result_dayOfMonth = reservationresults.getInt("day_of_month");
+              result_carrierId = reservationresults.getString("carrier_id");
+              result_flightNum = reservationresults.getInt("flight_num");
+              result_originCity = reservationresults.getString("origin_city");
+              result_destCity = reservationresults.getString("dest_city");
+              result_time = reservationresults.getInt("actual_time");
+              result_capacity = reservationresults.getInt("capacity");
+              result_price = reservationresults.getInt("price");
+
+              reservationresults.close(); 
+              sb.append("Reservation " + result_RID + " paid: " + result_ispaid + ":\n");
+
+              sb.append("ID: " + result_fid2 + " Day: " + result_dayOfMonth + " Carrier: " + result_carrierId + " Number: " + result_flightNum + " Origin: " + result_originCity + " Dest: " + result_destCity + " Duration: " + result_time + " Capacity: " + result_capacity + " Price: " + result_price + "\n");
+
+            }      
+          } 
+          isreservationresults.close();
+          conn.commit();
+          conn.setAutoCommit(true);
+          if (i==0) {
+            return "No reservations found\n";
+          } else {
+            return sb.toString();          
+          }
+        }catch (SQLException e) {
+              deadLock = isDeadLock(e);
+              if (deadLock) {
+                try {
+                  conn.rollback();
+                  conn.setAutoCommit(true);
+                }catch (SQLException f) {
+                  f.printStackTrace();
+                }
+              }         
+              e.printStackTrace();
+            }
+            
+          }
+
       return "Failed to retrieve reservations\n";
     } finally {
       checkDanglingTransaction();
@@ -763,7 +882,60 @@ public class Query {
    */
   public String transaction_cancel(int reservationId) {
     try {
-      // TODO: YOUR CODE HERE
+      if (isLogin==false) {
+        return "Cannot cancel reservations, not logged in\n";
+      }
+      // is reservation
+      boolean deadLock = true;
+      
+      while (deadLock==true){
+        deadLock= false;
+        try {
+          // refund
+          conn.setAutoCommit(false);
+          
+          // 
+          refundStatement.clearParameters();
+          refundStatement.setInt(1, reservationId);
+          refundStatement.setString(2, currentUser);
+          
+          ResultSet refundresults = refundStatement.executeQuery();
+          refundresults.next();
+
+          int refund = refundresults.getInt("refund");
+          refundresults.close();
+          if (refund>0){
+            // change balance 
+          changeBalanceStatement.clearParameters();
+          changeBalanceStatement.setInt(1, refund);
+          changeBalanceStatement.setString(2, currentUser);
+          changeBalanceStatement.executeUpdate();
+          }
+          // cancel
+          deleteStatement.clearParameters();
+          deleteStatement.setInt(1, reservationId);
+          int success = deleteStatement.executeUpdate();
+          conn.commit();
+          conn.setAutoCommit(true);
+          if (success>0) {
+            return "Canceled reservation "+ reservationId + "\n";
+          }
+
+        } catch (SQLException e) {
+          deadLock = isDeadLock(e);
+          if (deadLock) {
+            try {
+              conn.rollback();
+              conn.setAutoCommit(true);
+            }catch (SQLException f) {
+              f.printStackTrace();
+            }
+          }         
+          e.printStackTrace();
+        }
+        
+      }
+      
       return "Failed to cancel reservation " + reservationId + "\n";
     } finally {
       checkDanglingTransaction();
